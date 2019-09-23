@@ -1,5 +1,5 @@
-import { on, hookFragments } from "../dist/index.js";
-import { createVNode, hydrateChildren, hydrate } from "@opennetwork/vnode";
+import { on, hookFragments, IsolatedFragment } from "../dist/index.js";
+import { createVNode, hydrateChildren, hydrate, Fragment } from "@opennetwork/vnode";
 import { asyncExtendedIterable } from "iterable";
 
 const context = {
@@ -42,23 +42,34 @@ function createInstance() {
         ],
         [
           {
-            reference: 2,
-            source: "button",
-            options: {
-              class: "primary"
-            },
+            // Warning, this works in JavaScript, but the MarshalledVNode type doesn't allow it
+            //
+            // The way createVNode works, it "just works"
+            reference: Fragment,
+            source: IsolatedFragment,
             children: [
-              ["I am a primary button"]
-            ]
-          },
-          {
-            reference: 3,
-            source: "button",
-            options: {
-              class: "primary"
-            },
-            children: [
-              ["I am now a primary button"]
+              [
+                {
+                  reference: 2,
+                  source: "button",
+                  options: {
+                    class: "primary"
+                  },
+                  children: [
+                    ["I am a primary button"]
+                  ]
+                },
+                {
+                  reference: 3,
+                  source: "button",
+                  options: {
+                    class: "primary"
+                  },
+                  children: [
+                    ["I am now a primary button"]
+                  ]
+                }
+              ]
             ]
           }
         ]

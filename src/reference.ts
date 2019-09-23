@@ -33,6 +33,7 @@ export function isReferenceFragmentVNode(node: VNode): node is ReferenceFragment
   }
   return (
     isReferenceFragmentVNodeLike(node) &&
+    node.source === ReferenceFragment &&
     typeof node.options.is === "function" &&
     typeof node.options.on === "function"
   );

@@ -33,6 +33,7 @@ export function isMutationFragmentVNode(node: VNode): node is MutationFragmentVN
   }
   return (
     isMutationFragmentVNodeLike(node) &&
+    node.source === MutationFragment &&
     typeof node.options.is === "function" &&
     typeof node.options.mutate === "function"
   );
