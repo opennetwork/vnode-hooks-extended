@@ -5,7 +5,11 @@ import { isReferenceFragmentVNode, isReferenceFragmentVNodeForVNode, ReferenceFr
 import { asyncHooks } from "iterable";
 import { isIsolatedFragmentVNode, IsolatedFragmentVNode } from "./isolated";
 
-export function hookFragments(fragments: FragmentVNodeDescriptor[] = [], depth: number = 0): VNodeHook {
+export function hookFragments(): VNodeHook {
+  return hookFragmentsWithDetails([], 0);
+}
+
+function hookFragmentsWithDetails(fragments: FragmentVNodeDescriptor[] = [], depth: number = 0) {
   return hooks(fragmentHooks(fragments, depth));
 }
 
@@ -38,10 +42,14 @@ function fragmentHooks(fragments: FragmentVNodeDescriptor[] = [], depth: number 
 }
 
 function fragmentChildrenHooks(fragments: FragmentVNodeDescriptor[] = [], depth: number = 0): VNodeChildrenHooks & { yield: unknown } {
+  let hook: VNodeHook;
   return {
     yield(children) {
+      if (!hook) {
+        hook = hookFragmentsWithDetails(fragments, depth + 1);
+      }
       // Will "just work", in this case we have a list of children, rather than updates for the same VNode
-      return hookFragments(fragments, depth + 1)(children);
+      return hook(children);
     }
   };
 }
