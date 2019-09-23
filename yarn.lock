@@ -23,12 +23,17 @@
   resolved "https://registry.npmjs.org/@opennetwork/vnode-hooks/-/vnode-hooks-1.1.0.tgz#aa25d92e118985b6ff589e1fbc04703bd330c137"
   integrity sha512-4MSVFLbGR0njvUG47/I4x3sQu+0i5vCDB47+lMc4meyqU2NLi6eUCzK8fhoKCbW3OcKixdNR2bbqWcYO7nbB/A==
 
-"@opennetwork/vnode@^12.2.0":
-  version "12.2.0"
-  resolved "https://registry.npmjs.org/@opennetwork/vnode/-/vnode-12.2.0.tgz#501629587e8b81a8c45ea2bd9e9e56b979e3e272"
-  integrity sha512-FA7nhkD4F/BYxoF/Vn+28vF4sh+v+dENfIoE2Mt9h1mUQFWfR/plk1rd7fzRWe2PDde18iMbgjVDnQi5Brtnlw==
+"@opennetwork/vnode@^13.0.0":
+  version "13.0.0"
+  resolved "https://registry.npmjs.org/@opennetwork/vnode/-/vnode-13.0.0.tgz#b82f59f17cb25f6672adfce841a95881e5bf78f0"
+  integrity sha512-5xQuHvYd1kKmUxojftSwP2b0wA9dzBYISc863OZBQrA2nnpfxJq4OzM2JIt7z0X8CdbLtcZyo+XVEukjbZiuRw==
   dependencies:
     iterable "^5.2.2"
+
+"@types/node@^12.7.5":
+  version "12.7.5"
+  resolved "https://registry.npmjs.org/@types/node/-/node-12.7.5.tgz#e19436e7f8e9b4601005d73673b6dc4784ffcc2f"
+  integrity sha512-9fq4jZVhPNW8r+UYKnxF1e2HkDWOWKM5bC2/7c9wPV835I0aOrVbS/Hw/pWPk2uKrNXQqg9Z959Kz+IYDd5p3w==
 
 ansi-styles@^3.2.1:
   version "3.2.1"

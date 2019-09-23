@@ -1,4 +1,11 @@
-import { Fragment, FragmentVNode, isFragmentVNode, SourceReference, VNode } from "@opennetwork/vnode";
+import {
+  Fragment,
+  FragmentVNode,
+  isFragmentVNode,
+  isSourceReference,
+  SourceReference,
+  VNode
+} from "@opennetwork/vnode";
 import { IsFunction, ReferenceIsResult, isReferencedVNode } from "./is";
 
 export type ReferenceIs<ReferencedVNode extends VNode = VNode> = IsFunction<VNode, ReferencedVNode>;
@@ -55,7 +62,7 @@ export function on<ReferencedVNode extends VNode = VNode, S extends SourceRefere
     return resolvedOn(args[0], args[1], getMode(args[2]));
   }
 
-  if (args.length >= 2 && typeof args[0] === "string" && typeof args[1] === "function") {
+  if (args.length >= 2 && isSourceReference(args[0]) && typeof args[1] === "function") {
     return resolvedOn(isReferencedVNode.bind(undefined, args[0]), args[1], getMode(args[2]));
   }
 

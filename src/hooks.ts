@@ -1,10 +1,10 @@
 import { hooks, VNodeHook, VNodeHooks, VNodeChildrenHooks } from "@opennetwork/vnode-hooks";
 import { Fragment, FragmentVNode, VNode } from "@opennetwork/vnode";
-import { isMutationFragmentVNode, isMutationFragmentVNodeForVNode, mutate, MutationFragmentVNode } from "./mutation";
+import { isMutationFragmentVNode, isMutationFragmentVNodeForVNode, MutationFragmentVNode } from "./mutation";
 import { isReferenceFragmentVNode, isReferenceFragmentVNodeForVNode, ReferenceFragmentVNode } from "./reference";
 import { asyncHooks } from "iterable";
 
-export function hookFragments(fragments: FragmentVNode[]): VNodeHook {
+export function hookFragments(fragments: FragmentVNode[] = []): VNodeHook {
   return hooks(fragmentHooks(fragments), fragmentChildrenHooks(fragments));
 }
 
@@ -29,16 +29,19 @@ function fragmentHooks(fragments: FragmentVNode[]): VNodeHooks & { yield: unknow
 }
 
 function fragmentChildrenHooks(fragments: FragmentVNode[]): VNodeChildrenHooks & { yield: unknown } {
-  const hook = hookFragments(fragments);
   return {
     yield(children) {
       // Will "just work", in this case we have a list of children, rather than updates for the same VNode
-      return hook(children);
+      return hookFragments(fragments)(children);
     }
   };
 }
 
 async function run<V extends VNode = VNode>(node: V, fragments: FragmentVNode[]): Promise<VNode> {
+  if (!fragments.length) {
+    return node;
+  }
+
   const mutators = fragments.filter(isMutationFragmentVNode);
   const references = fragments.filter(isReferenceFragmentVNode);
 

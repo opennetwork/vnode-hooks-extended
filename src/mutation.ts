@@ -1,4 +1,11 @@
-import { Fragment, FragmentVNode, isFragmentVNode, SourceReference, VNode } from "@opennetwork/vnode";
+import {
+  Fragment,
+  FragmentVNode,
+  isFragmentVNode,
+  isSourceReference,
+  SourceReference,
+  VNode
+} from "@opennetwork/vnode";
 import { IsFunction, isReferencedVNode, ReferenceIsResult } from "./is";
 
 export const MutationFragment = Symbol("Mutation Fragment");
@@ -47,7 +54,7 @@ export function mutate<ReferencedVNode extends VNode = VNode, MutatedVNode exten
     return resolvedMutate(args[0], args[1], getMode(args[2]));
   }
 
-  if (args.length >= 2 && typeof args[0] === "string" && typeof args[1] === "function") {
+  if (args.length >= 2 && isSourceReference(args[0]) && typeof args[1] === "function") {
     return resolvedMutate(isReferencedVNode.bind(undefined, args[0]), args[1], getMode(args[2]));
   }
 
