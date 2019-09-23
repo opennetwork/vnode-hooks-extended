@@ -1,0 +1,32 @@
+{
+  "name": "@opennetwork/vnode-fragment",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc --declaration && npm run tslint && node correct-import-extensions.js",
+    "watch": "tsc -w",
+    "tslint": "tslint -c tslint.json -p tsconfig.json",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "@opennetwork/vnode": "^12.2.0",
+    "@opennetwork/vnode-hooks": "^1.0.2",
+    "iterable": "^5.6.0"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/opennetwork/vnode-fragment.git"
+  },
+  "devDependencies": {
+    "@opennetwork/vnode": "^12.2.0",
+    "@opennetwork/vnode-hooks": "^1.1.0",
+    "esm": "^3.2.25",
+    "filehound": "^1.17.3",
+    "iterable": "^5.6.0",
+    "tslint": "^5.20.0",
+    "typescript": "^3.6.3"
+  }
+}
