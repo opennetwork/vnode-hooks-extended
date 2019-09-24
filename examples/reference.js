@@ -1,6 +1,6 @@
 import { on, hookFragments, IsolatedFragment } from "../dist/index.js";
 import { createVNode, hydrateChildren, hydrate, Fragment } from "@opennetwork/vnode";
-import { asyncExtendedIterable } from "iterable";
+import { asyncExtendedIterable, asyncIterable } from "iterable";
 
 const context = {
   hydrate: (node, tree) => {
@@ -87,7 +87,7 @@ async function run() {
     createInstance()
   );
 
-  await asyncExtendedIterable(hookFragments()(simpleReferenceFragment)).forEach(node => hydrate(context, node));
+  await asyncExtendedIterable(hookFragments()(asyncIterable([simpleReferenceFragment]))).forEach(node => hydrate(context, node));
 
   const isReferenceFragment = createVNode(
     context,
@@ -96,7 +96,7 @@ async function run() {
     createInstance()
   );
 
-  await asyncExtendedIterable(hookFragments()(isReferenceFragment)).forEach(node => hydrate(context, node));
+  await asyncExtendedIterable(hookFragments()(asyncIterable([isReferenceFragment]))).forEach(node => hydrate(context, node));
 
   const anyReferenceFragment = createVNode(
     context,
@@ -105,7 +105,7 @@ async function run() {
     createInstance()
   );
 
-  await asyncExtendedIterable(hookFragments()(anyReferenceFragment)).forEach(node => hydrate(context, node));
+  await asyncExtendedIterable(hookFragments()(asyncIterable([anyReferenceFragment]))).forEach(node => hydrate(context, node));
 }
 
 run()
