@@ -1,60 +1,44 @@
-import { hooks, VNodeHook, VNodeHooks, VNodeChildrenHooks } from "@opennetwork/vnode-hooks";
+import { VNodeHook } from "@opennetwork/vnode-hooks";
 import { FragmentVNode, VNode } from "@opennetwork/vnode";
 import { isMutationFragmentVNode, isMutationFragmentVNodeForVNode, MutationFragmentVNode } from "./mutation";
 import { isReferenceFragmentVNode, isReferenceFragmentVNodeForVNode, ReferenceFragmentVNode } from "./reference";
-import { asyncHooks } from "iterable";
 import { isIsolatedFragmentVNode, IsolatedFragmentVNode } from "./isolated";
+import { asyncExtendedIterable } from "iterable";
 
-export function hookFragments(): VNodeHook {
-  return hookFragmentsWithDetails([], 0);
-}
-
-function hookFragmentsWithDetails(fragments: FragmentVNodeDescriptor[] = [], depth: number = 0) {
-  return hooks(fragmentHooks(fragments, depth));
-}
-
-function fragmentHooks(fragments: FragmentVNodeDescriptor[] = [], depth: number = 0): VNodeHooks & { yield: unknown } {
-  return {
-    async yield(node) {
-      if (isMutationFragmentVNode(node) || isReferenceFragmentVNode(node) || isIsolatedFragmentVNode(node)) {
-        if (!node.children) {
-          // We will never utilise the fragments, so we can ignore them for now
-          return node;
-        }
-        const nextHook = asyncHooks(fragmentChildrenHooks(fragments.concat({ fragment: node, depth })));
-        return {
-          ...node,
-          children: nextHook(node.children)
-        };
+export function hookFragments(fragments: FragmentVNodeDescriptor[] = [], depth: number = 0): VNodeHook {
+  return async (node: VNode): Promise<VNode> => {
+    let trackingFragments = fragments,
+      trackingNode = node;
+    if (isMutationFragmentVNode(node) || isReferenceFragmentVNode(node) || isIsolatedFragmentVNode(node)) {
+      if (!node.children) {
+        // We will never utilise the fragments, so we can ignore them for now
+        return node;
       }
-      const nextHook = asyncHooks(fragmentChildrenHooks(fragments));
-      // Do something with our
-      const nextNode = await run(node, fragments, depth);
-      if (!nextNode.children) {
-        return nextNode;
-      }
-      return {
-        ...nextNode,
-        children: nextHook(nextNode.children)
-      };
+      trackingFragments = fragments.concat({ fragment: node, depth });
+    } else {
+      trackingNode = await run(node, fragments);
     }
+    if (!trackingNode.children) {
+      return trackingNode;
+    }
+    const nextHook = hooksFragmentChildren(trackingFragments, depth);
+    return {
+      ...trackingNode,
+      children: nextHook(trackingNode.children)
+    };
   };
 }
 
-function fragmentChildrenHooks(fragments: FragmentVNodeDescriptor[] = [], depth: number = 0): VNodeChildrenHooks & { yield: unknown } {
-  let hook: VNodeHook;
-  return {
-    yield(children) {
-      if (!hook) {
-        hook = hookFragmentsWithDetails(fragments, depth + 1);
-      }
-      // Will "just work", in this case we have a list of children, rather than updates for the same VNode
-      return hook(children);
-    }
+function hooksFragmentChildren(fragments: FragmentVNodeDescriptor[], depth: number) {
+  const hook = hookFragments(fragments, depth + 1);
+  return (updates: AsyncIterable<AsyncIterable<VNode>>): AsyncIterable<AsyncIterable<VNode>> => {
+    return asyncExtendedIterable(updates).map(
+      children => asyncExtendedIterable(children).map(hook)
+    );
   };
 }
 
-async function run<V extends VNode = VNode>(node: V, fragments: FragmentVNodeDescriptor[] = [], depth: number): Promise<VNode> {
+async function run<V extends VNode = VNode>(node: V, fragments: FragmentVNodeDescriptor[] = []): Promise<VNode> {
   if (!fragments.length) {
     return node;
   }

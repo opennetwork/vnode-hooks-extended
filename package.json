@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@opennetwork/vnode": "^15.2.0",
-    "@opennetwork/vnode-hooks": "^4.0.0",
+    "@opennetwork/vnode-hooks": "^5.0.0",
     "@types/node": "^12.7.5",
     "esm": "^3.2.25",
     "filehound": "^1.17.3",
