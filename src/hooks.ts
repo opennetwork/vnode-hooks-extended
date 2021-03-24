@@ -3,7 +3,6 @@ import { FragmentVNode, VNode } from "@opennetwork/vnode";
 import { isMutationFragmentVNode, isMutationFragmentVNodeForVNode, MutationFragmentVNode } from "./mutation";
 import { isReferenceFragmentVNode, isReferenceFragmentVNodeForVNode, ReferenceFragmentVNode } from "./reference";
 import { isIsolatedFragmentVNode, IsolatedFragmentVNode } from "./isolated";
-import { asyncExtendedIterable } from "iterable";
 
 export function hookFragments(fragments: FragmentVNodeDescriptor[] = [], depth: number = 0): VNodeHook {
   return async (node: VNode): Promise<VNode> => {
@@ -31,10 +30,14 @@ export function hookFragments(fragments: FragmentVNodeDescriptor[] = [], depth: 
 
 function hooksFragmentChildren(fragments: FragmentVNodeDescriptor[], depth: number) {
   const hook = hookFragments(fragments, depth + 1);
-  return (updates: AsyncIterable<AsyncIterable<VNode>>): AsyncIterable<AsyncIterable<VNode>> => {
-    return asyncExtendedIterable(updates).map(
-      children => asyncExtendedIterable(children).map(hook)
-    );
+  return async function *hookedChildren(children: AsyncIterable<ReadonlyArray<VNode>>): AsyncIterable<ReadonlyArray<VNode>> {
+    for await (const updates of children) {
+      yield Object.freeze(
+        await Promise.all(
+          updates.map(hook)
+        )
+      );
+    }
   };
 }
 
