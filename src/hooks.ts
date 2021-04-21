@@ -34,7 +34,7 @@ function hooksFragmentChildren(fragments: FragmentVNodeDescriptor[], depth: numb
     for await (const updates of children) {
       yield Object.freeze(
         await Promise.all(
-          updates.map(hook)
+          updates.map(node => hook(node))
         )
       );
     }

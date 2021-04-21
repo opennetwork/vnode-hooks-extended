@@ -9,7 +9,6 @@ const context = {
 
 function createInstance() {
   return createVNode(
-    context,
     {
       reference: 1,
       source: "main",
@@ -80,7 +79,6 @@ function createInstance() {
 
 async function run() {
   const simpleReferenceFragment = createVNode(
-    context,
     on(3, node => console.log("We have a reference to 3", node)),
     {},
     createInstance()
@@ -89,7 +87,6 @@ async function run() {
   await hydrate(context, await hookFragments()(simpleReferenceFragment));
 
   const isReferenceFragment = createVNode(
-    context,
     on(node => node.source === "button", node => console.log("We have a reference to a button", node)),
     {},
     createInstance()
@@ -98,7 +95,6 @@ async function run() {
   await hydrate(context, await hookFragments()(isReferenceFragment));
 
   const anyReferenceFragment = createVNode(
-    context,
     on(node => console.log("We have a reference", node)),
     {},
     createInstance()
