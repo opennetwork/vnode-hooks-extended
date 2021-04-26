@@ -1,6 +1,6 @@
 import dom from "./jsdom.js";
-import { mutate, Hook, Isolated } from "../dist/index.js";
-import { createNode, Fragment } from "@opennetwork/vnode";
+import {Hook, Isolated, Mutation, Reference} from "../dist/index.js";
+import { createNode } from "@opennetwork/vnode";
 import { createTimeline, marshalTimeline } from "@opennetwork/vdom";
 import { render, DOMVContext } from "@opennetwork/vdom";
 import { v4 } from "uuid";
@@ -13,6 +13,7 @@ function createInstance() {
   return createNode(
     "main",
     {
+      type: "Element",
       attributes: {
         class: "main-content"
       }
@@ -20,6 +21,7 @@ function createInstance() {
     createNode(
       "button",
       {
+        type: "Element",
         reference: 2,
         attributes: {
           class: "primary"
@@ -30,6 +32,7 @@ function createInstance() {
     createNode(
       "button",
       {
+        type: "Element",
         reference: 3,
         attributes: {
           class: "secondary"
@@ -41,16 +44,15 @@ function createInstance() {
       Isolated,
       {},
       createNode(
-        createNode(
-          "button",
-          {
-            reference: 2,
-            attributes: {
-              class: "primary"
-            }
-          },
-          "I am a primary button, but different"
-        )
+        "button",
+        {
+          type: "Element",
+          reference: 2,
+          attributes: {
+            class: "primary"
+          }
+        },
+        "I am a primary button, but different"
       )
     )
   )
@@ -58,34 +60,46 @@ function createInstance() {
 
 async function run() {
 
-  debugger;
-
-  console.log("start");
-
   const mutateFragment = createNode(
-    mutate(node => node.source === "button", node => ({
-      ...node,
-      source: "div",
-      options: {
-        ...node.options,
-        attributes: {
-          ...node.options.attributes,
-          "aria-role": "button",
-          class: "button"
+    Reference,
+    {
+      on: console.log
+    },
+    createNode(
+      Mutation,
+      {
+        is(node) {
+          return node.source === "button"
+        },
+        mutate(node) {
+          console.log({ node });
+          return {
+            ...node,
+            source: "div",
+            options: {
+              ...node.options,
+              attributes: {
+                ...node.options.attributes,
+                "aria-role": "button",
+                class: "button"
+              }
+            }
+          }
         }
-      }
-    })),
-    {},
-    createInstance()
+      },
+      createInstance()
+    )
   );
 
-  const timelinePromise = createTimeline(context, logTimeline);
+  // const timelinePromise = createTimeline(context, logTimeline);
 
   await render(createNode(Hook, {}, mutateFragment), context);
 
   await context.close();
 
-  console.log(JSON.stringify(logTimeline(await timelinePromise), undefined, "  "))
+  console.log(dom.serialize());
+
+  // console.log(JSON.stringify(logTimeline(await timelinePromise), undefined, "  "))
 }
 
 async function logTimeline(timeline) {
@@ -93,6 +107,6 @@ async function logTimeline(timeline) {
 }
 
 run()
-  .catch(error => console.error(error));
+  .catch(error => console.error(error.errors ?? error));
 
 

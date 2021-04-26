@@ -33,10 +33,10 @@
   resolved "https://registry.npmjs.org/@opennetwork/vdom/-/vdom-20.1.0.tgz#2c4bc0a08d6d8392d16fb010f14c55ba3f9029f2"
   integrity sha512-OETMLSjfk09rbJryjUVco8WUV1IzCQ9kNHEEG/1QI0zKsR6+PpSLv/shnIXReu119nWaozUYeW4ktdkLg+E+3g==
 
-"@opennetwork/vnode-hooks@^9.3.0":
-  version "9.3.0"
-  resolved "https://registry.npmjs.org/@opennetwork/vnode-hooks/-/vnode-hooks-9.3.0.tgz#ab2597b1b43a503b8921ab6276f0686f2322a6c4"
-  integrity sha512-wwJKfGsibGz1msW2im5Yodv8nlGmhW8+lbvgbfV3slQIEHUvCDRDlMY+9ubARhxy7XDhrOp743JAHtb+rz5MLA==
+"@opennetwork/vnode-hooks@^10.0.0":
+  version "10.0.0"
+  resolved "https://registry.npmjs.org/@opennetwork/vnode-hooks/-/vnode-hooks-10.0.0.tgz#064c588871f63d7c4df988bc345f52129ea6357b"
+  integrity sha512-uwcU1LibCS1YNGjaBRvYm1voR6BNPZhW/vBkF4GAtrHJNunQQSLdmxswX/ixEseg/T5//yZtMh2SAnkCf7RWsg==
 
 "@opennetwork/vnode@^26.1.4":
   version "26.1.4"

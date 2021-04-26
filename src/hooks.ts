@@ -104,7 +104,7 @@ async function run<V extends VNode = VNode>(node: V, targets: HookedTarget[] = [
   }
 
   async function mutate(node: VNode, targets: HookedTarget<MutationToken>[]): Promise<VNode> {
-    if (!mutators.length) {
+    if (!targets.length) {
       return node;
     }
     const currentMutators = targets.slice();
