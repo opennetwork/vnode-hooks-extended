@@ -1,5 +1,5 @@
 import { Hook as Basic, HookPair } from "@opennetwork/vnode-hooks";
-import { createFragment, createNode, FragmentVNode, isSourceReference, VNode } from "@opennetwork/vnode";
+import { createFragment, createNode, isSourceReference, VNode } from "@opennetwork/vnode";
 import { Mutation, MutationIs, MutationToken } from "./mutation";
 import { Reference, ReferenceIs, ReferenceToken } from "./reference";
 import { Isolated, IsolatedToken } from "./isolated";

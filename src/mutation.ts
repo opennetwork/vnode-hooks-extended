@@ -1,12 +1,10 @@
 import {
-  createNode,
-  isSourceReference,
   SourceReference,
   TokenVNodeBase,
   VNode,
   createToken
 } from "@opennetwork/vnode";
-import { IsFunction, isReferencedVNode, ReferenceIsResult } from "./is";
+import { IsFunction } from "./is";
 
 export type MutationIs<ReferencedVNode extends VNode = VNode> = IsFunction<VNode, ReferencedVNode> | SourceReference;
 export interface MutationOn<ReferencedVNode extends VNode = VNode, MutatedVNode extends VNode = VNode> {

@@ -1,11 +1,10 @@
 import {
-  isSourceReference,
   SourceReference,
   VNode,
   createToken,
-  TokenVNodeBase, createNode
+  TokenVNodeBase
 } from "@opennetwork/vnode";
-import { IsFunction, ReferenceIsResult, isReferencedVNode } from "./is";
+import { IsFunction } from "./is";
 
 export type ReferenceIs<ReferencedVNode extends VNode = VNode> = IsFunction<VNode, ReferencedVNode> | SourceReference;
 export interface ReferenceOn<ReferencedVNode extends VNode = VNode> {
