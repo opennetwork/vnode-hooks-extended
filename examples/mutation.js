@@ -1,7 +1,7 @@
 import dom from "./jsdom.js";
-import { mutate, hookFragments, IsolatedFragment } from "../dist/index.js";
-import { createVNode, Fragment } from "@opennetwork/vnode";
-import {createTimeline, marshalTimeline} from "@opennetwork/vdom";
+import { mutate, Hook, Isolated } from "../dist/index.js";
+import { createNode, Fragment } from "@opennetwork/vnode";
+import { createTimeline, marshalTimeline } from "@opennetwork/vdom";
 import { render, DOMVContext } from "@opennetwork/vdom";
 import { v4 } from "uuid";
 
@@ -10,98 +10,86 @@ const context = new DOMVContext({
 });
 
 function createInstance() {
-  return createVNode(
+  return createNode(
+    "main",
     {
-      reference: 1,
-      source: "main",
-      options: {
+      attributes: {
         class: "main-content"
+      }
+    },
+    createNode(
+      "button",
+      {
+        reference: 2,
+        attributes: {
+          class: "primary"
+        }
       },
-      children: [
-        [
+      "I am a primary button"
+    ),
+    createNode(
+      "button",
+      {
+        reference: 3,
+        attributes: {
+          class: "secondary"
+        }
+      },
+      "I am a secondary button"
+    ),
+    createNode(
+      Isolated,
+      {},
+      createNode(
+        createNode(
+          "button",
           {
             reference: 2,
-            source: "button",
-            options: {
+            attributes: {
               class: "primary"
-            },
-            children: [
-              ["I am a primary button"]
-            ]
+            }
           },
-          {
-            reference: 3,
-            source: "button",
-            options: {
-              class: "secondary"
-            },
-            children: [
-              ["I am a secondary button"]
-            ]
-          }
-        ],
-        [
-          {
-            // Warning, this works in JavaScript, but the MarshalledVNode type doesn't allow it
-            //
-            // The way createVNode works, it "just works"
-            reference: Fragment,
-            source: IsolatedFragment,
-            children: [
-              [
-                {
-                  reference: 2,
-                  source: "button",
-                  options: {
-                    class: "primary"
-                  },
-                  children: [
-                    ["I am a primary button"]
-                  ]
-                },
-                {
-                  reference: 3,
-                  source: "button",
-                  options: {
-                    class: "primary"
-                  },
-                  children: [
-                    ["I am now a primary button"]
-                  ]
-                }
-              ]
-            ]
-          }
-        ]
-      ]
-    },
-    {}
+          "I am a primary button, but different"
+        )
+      )
+    )
   )
 }
 
 async function run() {
 
-  const mutateFragment = createVNode(
+  debugger;
+
+  console.log("start");
+
+  const mutateFragment = createNode(
     mutate(node => node.source === "button", node => ({
       ...node,
       source: "div",
       options: {
         ...node.options,
-        "aria-role": "button",
-        class: "button"
+        attributes: {
+          ...node.options.attributes,
+          "aria-role": "button",
+          class: "button"
+        }
       }
     })),
     {},
     createInstance()
   );
 
-  const timelinePromise = createTimeline(context);
+  const timelinePromise = createTimeline(context, logTimeline);
 
-  await render(await hookFragments()(mutateFragment), context);
+  await render(createNode(Hook, {}, mutateFragment), context);
 
   await context.close();
 
-  console.log(JSON.stringify(await marshalTimeline(await timelinePromise, v4), undefined, "  "))
+  console.log(JSON.stringify(logTimeline(await timelinePromise), undefined, "  "))
+}
+
+async function logTimeline(timeline) {
+  return marshalTimeline(timeline, v4);
 }
 
 run()

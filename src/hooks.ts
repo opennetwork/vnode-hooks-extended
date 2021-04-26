@@ -1,72 +1,80 @@
-import { VNodeHook } from "@opennetwork/vnode-hooks";
-import { FragmentVNode, VNode } from "@opennetwork/vnode";
-import { isMutationFragmentVNode, isMutationFragmentVNodeForVNode, MutationFragmentVNode } from "./mutation";
-import { isReferenceFragmentVNode, isReferenceFragmentVNodeForVNode, ReferenceFragmentVNode } from "./reference";
-import { isIsolatedFragmentVNode, IsolatedFragmentVNode } from "./isolated";
+import { Hook as Basic, HookPair } from "@opennetwork/vnode-hooks";
+import { createFragment, createNode, FragmentVNode, isSourceReference, VNode } from "@opennetwork/vnode";
+import { Mutation, MutationIs, MutationToken } from "./mutation";
+import { Reference, ReferenceIs, ReferenceToken } from "./reference";
+import { Isolated, IsolatedToken } from "./isolated";
 
-export function hookFragments(fragments: FragmentVNodeDescriptor[] = [], depth: number = 0): VNodeHook {
-  return async (node: VNode): Promise<VNode> => {
-    let trackingFragments = fragments,
-      trackingNode = node;
-    if (isMutationFragmentVNode(node) || isReferenceFragmentVNode(node) || isIsolatedFragmentVNode(node)) {
-      if (!node.children) {
-        // We will never utilise the fragments, so we can ignore them for now
-        return node;
-      }
-      trackingFragments = fragments.concat({ fragment: node, depth });
+export type Target = MutationToken | ReferenceToken | IsolatedToken;
+export function isTarget(node: VNode): node is Target {
+  return Mutation.is(node) || Reference.is(node) || Isolated.is(node);
+}
+
+export interface HookedTarget<T = Target> {
+  target: T;
+  depth: number;
+}
+
+export interface HookOptions {
+  targets?: HookedTarget[];
+  depth?: number;
+}
+
+export function Hook(options: HookOptions, child: VNode): VNode {
+
+  return createNode(Basic, { hook: hook.bind(undefined, options) }, child);
+
+  async function hook(options: HookOptions, node: VNode): Promise<HookPair> {
+    const { targets = [], depth = 0 } = options;
+    if (isTarget(node)) {
+      return [
+        createFragment({}, node.children),
+        hook.bind(undefined, {
+          ...options,
+          depth: depth + 1,
+          targets: targets.concat([{
+            target: node,
+            depth
+          }])
+        })
+      ];
     } else {
-      trackingNode = await run(node, fragments);
+      return [
+        await run(node, targets),
+        hook.bind(undefined, {
+          ...options,
+          depth: depth + 1
+        })
+      ];
     }
-    if (!trackingNode.children) {
-      return trackingNode;
-    }
-    const nextHook = hooksFragmentChildren(trackingFragments, depth);
-    return {
-      ...trackingNode,
-      children: nextHook(trackingNode.children)
-    };
-  };
+  }
 }
 
-function hooksFragmentChildren(fragments: FragmentVNodeDescriptor[], depth: number) {
-  const hook = hookFragments(fragments, depth + 1);
-  return async function *hookedChildren(children: AsyncIterable<ReadonlyArray<VNode>>): AsyncIterable<ReadonlyArray<VNode>> {
-    for await (const updates of children) {
-      yield Object.freeze(
-        await Promise.all(
-          updates.map(node => hook(node))
-        )
-      );
-    }
-  };
-}
-
-async function run<V extends VNode = VNode>(node: V, fragments: FragmentVNodeDescriptor[] = []): Promise<VNode> {
-  if (!fragments.length) {
+async function run<V extends VNode = VNode>(node: V, targets: HookedTarget[] = []): Promise<VNode> {
+  if (!targets.length) {
     return node;
   }
 
-  const isolated = fragments.filter(isIsolatedFragmentVNodeDescriptor);
+  const isolated = targets.filter(isIsolatedTarget);
 
   const isolatedDepth = isolated.reduce(
     (depth, descriptor) => Math.min(depth, descriptor.depth),
     Number.POSITIVE_INFINITY
   );
 
-  function isAllowedDepth(descriptor: FragmentVNodeDescriptor) {
+  function isAllowedDepth(descriptor: HookedTarget) {
     if (isolatedDepth === Number.POSITIVE_INFINITY) {
       return true;
     }
     return descriptor.depth >= isolatedDepth;
   }
 
-  const mutators = fragments
-    .filter(isMutationFragmentVNodeDescriptor)
-    .filter(isAllowedDepth);
+  const mutators = targets
+    .filter(isAllowedDepth)
+    .filter(isMutationTarget);
 
-  const references = fragments
-    .filter(isReferenceFragmentVNodeDescriptor)
-    .filter(isAllowedDepth);
+  const references = targets
+    .filter(isAllowedDepth)
+    .filter(isReferenceTarget);
 
   // Reference before we mutate
   await reference(node, references);
@@ -85,48 +93,49 @@ async function run<V extends VNode = VNode>(node: V, fragments: FragmentVNodeDes
 
   return mutated;
 
-  function reference<V extends VNode>(node: V, fragments: FragmentVNodeDescriptor<ReferenceFragmentVNode>[]) {
+  function reference<V extends VNode>(node: V, targets: HookedTarget<ReferenceToken>[]) {
     // Invoke all at once
     return Promise.all(
-      fragments
-        .map(
-          descriptor => descriptor.fragment
-        )
-        .filter(
-          (fragment): fragment is ReferenceFragmentVNode<V> => isReferenceFragmentVNodeForVNode(fragment, node)
-        )
-        .map(fragment => fragment.options.on(node))
+      targets
+        .map(descriptor => descriptor.target)
+        .filter(target => isExpected(node, target.options))
+        .map(target => target.options.on(node))
     );
   }
 
-  async function mutate(node: VNode, mutators: FragmentVNodeDescriptor<MutationFragmentVNode>[]): Promise<VNode> {
+  async function mutate(node: VNode, targets: HookedTarget<MutationToken>[]): Promise<VNode> {
     if (!mutators.length) {
       return node;
     }
-    const currentMutators = mutators.slice();
+    const currentMutators = targets.slice();
     const nextMutator = currentMutators.shift();
-    if (!isMutationFragmentVNodeForVNode(nextMutator.fragment, node)) {
+    if (isExpected(node, nextMutator.target.options)) {
+      const nextValue = await nextMutator.target.options.mutate(node);
+      return mutate(nextValue, currentMutators);
+    } else {
       return mutate(node, currentMutators);
     }
-    const nextValue = await nextMutator.fragment.options.mutate(node);
-    return mutate(nextValue, mutators);
+  }
+
+  function isExpected(node: VNode, { is: isValue }: { is?: ReferenceIs | MutationIs }): boolean {
+    if (typeof isValue === "function") {
+      return isValue(node);
+    }
+    if (isSourceReference(isValue)) {
+      return node.reference === isValue;
+    }
+    return true;
   }
 }
 
-
-interface FragmentVNodeDescriptor<Fragment extends FragmentVNode = FragmentVNode> {
-  fragment: Fragment;
-  depth: number;
+function isIsolatedTarget(hooked: HookedTarget<unknown>): hooked is HookedTarget<IsolatedToken> {
+  return Isolated.is(hooked.target);
 }
 
-export function isIsolatedFragmentVNodeDescriptor(descriptor: FragmentVNodeDescriptor): descriptor is FragmentVNodeDescriptor<IsolatedFragmentVNode> {
-  return isIsolatedFragmentVNode(descriptor.fragment);
+function isReferenceTarget(hooked: HookedTarget<unknown>): hooked is HookedTarget<ReferenceToken> {
+  return Reference.is(hooked.target);
 }
 
-export function isMutationFragmentVNodeDescriptor(descriptor: FragmentVNodeDescriptor): descriptor is FragmentVNodeDescriptor<MutationFragmentVNode> {
-  return isMutationFragmentVNode(descriptor.fragment);
-}
-
-export function isReferenceFragmentVNodeDescriptor(descriptor: FragmentVNodeDescriptor): descriptor is FragmentVNodeDescriptor<ReferenceFragmentVNode> {
-  return isReferenceFragmentVNode(descriptor.fragment);
+function isMutationTarget(hooked: HookedTarget<unknown>): hooked is HookedTarget<MutationToken> {
+  return Mutation.is(hooked.target);
 }

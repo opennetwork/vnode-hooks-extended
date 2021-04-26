@@ -1,5 +1,5 @@
-import { on, hookFragments, IsolatedFragment } from "../dist/index.js";
-import { createVNode, hydrateChildren, hydrate, Fragment } from "@opennetwork/vnode";
+import {Hook, Isolated, Reference} from "../dist/index.js";
+import {hydrateChildren, hydrate, Fragment, createNode} from "@opennetwork/vnode";
 
 const context = {
   hydrate: (node, tree) => {
@@ -8,99 +8,91 @@ const context = {
 };
 
 function createInstance() {
-  return createVNode(
+  return createNode(
+    "main",
     {
-      reference: 1,
-      source: "main",
-      options: {
+      attributes: {
         class: "main-content"
-      },
-      children: [
-        [
-          {
-            reference: 2,
-            source: "button",
-            options: {
-              class: "primary"
-            },
-            children: [
-              ["I am a primary button"]
-            ]
-          },
-          {
-            reference: 3,
-            source: "button",
-            options: {
-              class: "secondary"
-            },
-            children: [
-              ["I am a secondary button"]
-            ]
-          }
-        ],
-        [
-          {
-            // Warning, this works in JavaScript, but the MarshalledVNode type doesn't allow it
-            //
-            // The way createVNode works, it "just works"
-            reference: Fragment,
-            source: IsolatedFragment,
-            children: [
-              [
-                {
-                  reference: 2,
-                  source: "button",
-                  options: {
-                    class: "primary"
-                  },
-                  children: [
-                    ["I am a primary button"]
-                  ]
-                },
-                {
-                  reference: 3,
-                  source: "button",
-                  options: {
-                    class: "primary"
-                  },
-                  children: [
-                    ["I am now a primary button"]
-                  ]
-                }
-              ]
-            ]
-          }
-        ]
-      ]
+      }
     },
-    {}
+    createNode(
+      "button",
+      {
+        reference: 2,
+        attributes: {
+          class: "primary"
+        }
+      },
+      "I am a primary button"
+    ),
+    createNode(
+      "button",
+      {
+        reference: 3,
+        attributes: {
+          class: "secondary"
+        }
+      },
+      "I am a secondary button"
+    ),
+    createNode(
+      Isolated,
+      {},
+      createNode(
+        "button",
+        {
+          reference: 2,
+          attributes: {
+            class: "primary different"
+          }
+        },
+        "I am a primary button, but different"
+      )
+    )
   )
 }
 
 async function run() {
-  const simpleReferenceFragment = createVNode(
-    on(3, node => console.log("We have a reference to 3", node)),
-    {},
+
+  const simpleReferenceFragment = createNode(
+    Reference,
+    {
+      is: 3,
+      on(node) {
+        console.log("We have a reference to 3", node)
+      }
+    },
     createInstance()
   );
 
-  await hydrate(context, await hookFragments()(simpleReferenceFragment));
+  await hydrate(context, createNode(Hook, {}, simpleReferenceFragment));
 
-  const isReferenceFragment = createVNode(
-    on(node => node.source === "button", node => console.log("We have a reference to a button", node)),
-    {},
+  const isReferenceFragment = createNode(
+    Reference,
+    {
+      is(node) {
+        return node.source === "button"
+      },
+      on(node) {
+        console.log("We have a reference to a button", node)
+      }
+    },
     createInstance()
   );
 
-  await hydrate(context, await hookFragments()(isReferenceFragment));
+  await hydrate(context, createNode(Hook, {}, isReferenceFragment));
 
-  const anyReferenceFragment = createVNode(
-    on(node => console.log("We have a reference", node)),
-    {},
+  const anyReferenceFragment = createNode(
+    Reference,
+    {
+      on(node) {
+        console.log("We have a reference", node)
+      }
+    },
     createInstance()
   );
 
-  await hydrate(context, await hookFragments()(anyReferenceFragment));
+  await hydrate(context, createNode(Hook, {}, anyReferenceFragment));
 }
 
 run()

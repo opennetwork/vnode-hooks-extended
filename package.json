@@ -14,8 +14,8 @@
   },
   "peerDependencies": {
     "@opennetwork/progressive-merge": "^4.0.4",
-    "@opennetwork/vnode": "^18.1.1",
-    "@opennetwork/vnode-hooks": "^5.0.0",
+    "@opennetwork/vnode": "^26.1.0",
+    "@opennetwork/vnode-hooks": "^9.0.0",
     "@types/node": "^14.14.35",
     "iterable": "^5.6.0"
   },
@@ -26,9 +26,9 @@
   },
   "devDependencies": {
     "@opennetwork/progressive-merge": "^5.2.0",
-    "@opennetwork/vdom": "^18.0.0",
-    "@opennetwork/vnode": "^22.0.0",
-    "@opennetwork/vnode-hooks": "^7.0.0",
+    "@opennetwork/vdom": "^20.1.0",
+    "@opennetwork/vnode": "^26.1.4",
+    "@opennetwork/vnode-hooks": "^9.3.0",
     "@types/node": "^14.14.41",
     "esm": "^3.2.25",
     "filehound": "^1.17.3",

@@ -28,20 +28,20 @@
   resolved "https://registry.npmjs.org/@opennetwork/progressive-merge/-/progressive-merge-5.2.0.tgz#b9d349e2622726b0cf5b96209753f4c560489d35"
   integrity sha512-87SEGCJnAxZtJzFc4HbeJMjYeeCriyTAVjccny7Eu68+3BhtBlU9cdOPsfnyvjFNF+NDpe+T0LKTV1ruKNJaRA==
 
-"@opennetwork/vdom@^18.0.0":
-  version "18.0.0"
-  resolved "https://registry.npmjs.org/@opennetwork/vdom/-/vdom-18.0.0.tgz#85b586b784a895d1e00ce4103324129ce3b1fb70"
-  integrity sha512-1o+vd2LRDWIIqWcQrdFplhp389YN6txMYrn+ACC3zyqOzUB7syJIoBayrgcbylNFu8eoOX9tw9Eyqc8EBxVl9Q==
+"@opennetwork/vdom@^20.1.0":
+  version "20.1.0"
+  resolved "https://registry.npmjs.org/@opennetwork/vdom/-/vdom-20.1.0.tgz#2c4bc0a08d6d8392d16fb010f14c55ba3f9029f2"
+  integrity sha512-OETMLSjfk09rbJryjUVco8WUV1IzCQ9kNHEEG/1QI0zKsR6+PpSLv/shnIXReu119nWaozUYeW4ktdkLg+E+3g==
 
-"@opennetwork/vnode-hooks@^7.0.0":
-  version "7.0.0"
-  resolved "https://registry.npmjs.org/@opennetwork/vnode-hooks/-/vnode-hooks-7.0.0.tgz#5041dce65676e599dc3f165ab3529cce24e41f42"
-  integrity sha512-dY8bTWNp24K4z+Whz8mLeoZGlx+/khrpMKwYgU+cbAtijWcXC4UydVffz4HNJq7O6BmNgBsEc/hD3acS8+necw==
+"@opennetwork/vnode-hooks@^9.3.0":
+  version "9.3.0"
+  resolved "https://registry.npmjs.org/@opennetwork/vnode-hooks/-/vnode-hooks-9.3.0.tgz#ab2597b1b43a503b8921ab6276f0686f2322a6c4"
+  integrity sha512-wwJKfGsibGz1msW2im5Yodv8nlGmhW8+lbvgbfV3slQIEHUvCDRDlMY+9ubARhxy7XDhrOp743JAHtb+rz5MLA==
 
-"@opennetwork/vnode@^22.0.0":
-  version "22.0.0"
-  resolved "https://registry.npmjs.org/@opennetwork/vnode/-/vnode-22.0.0.tgz#76e0782f993e22618d6930e5bf256e2fc5c8179c"
-  integrity sha512-jom8hGwYN41HI4q6T1mb/TYhGUZV8xZNgwIsehchz7KBLcZ7amMY1o/18hY0/EfEBvZt1AjbMibWxUghEqyrUA==
+"@opennetwork/vnode@^26.1.4":
+  version "26.1.4"
+  resolved "https://registry.npmjs.org/@opennetwork/vnode/-/vnode-26.1.4.tgz#937715e879ab52eded26dea0c9bb7d3f44df5e67"
+  integrity sha512-AH4GnHxvQaDczeBY5InyY6mBThQQq87dEeMBZrAeGdTR7ubUSRcD0Y/42sXKaKipyrihWfVLoIc76vyxgf4o7w==
 
 "@types/node@^14.14.41":
   version "14.14.41"
